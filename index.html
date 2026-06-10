@@ -1,0 +1,474 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans,system-ui,sans-serif);background:transparent;color:var(--color-text-primary)}
+.app{display:flex;height:100vh;min-height:600px;overflow:hidden}
+.sidebar{width:210px;min-width:210px;background:var(--color-background-secondary);border-right:.5px solid var(--color-border-tertiary);overflow-y:auto;flex-shrink:0}
+.sb-header{padding:14px 14px 10px;border-bottom:.5px solid var(--color-border-tertiary)}
+.sb-title{font-size:12px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.06em}
+.sb-section{padding:8px 14px 4px}
+.ph-label{font-size:10px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
+.ph-item{display:flex;align-items:center;gap:7px;padding:4px 7px;border-radius:var(--border-radius-md);cursor:pointer;font-size:12px;color:var(--color-text-secondary);transition:background .15s}
+.ph-item:hover{background:var(--color-background-primary)}
+.ph-item.active{background:var(--color-background-primary);color:var(--color-text-primary);font-weight:500}
+.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.dot-done{background:#1D9E75}.dot-active{background:#378ADD}.dot-locked{background:var(--color-border-secondary,#ccc)}
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+.topbar{padding:12px 22px;border-bottom:.5px solid var(--color-border-tertiary);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.t-ph{font-size:10px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.07em;margin-right:8px}
+.t-title{font-size:18px;font-weight:500}
+.tabs{display:flex;border-bottom:.5px solid var(--color-border-tertiary);padding:0 22px;overflow-x:auto;flex-shrink:0}
+.tab{padding:9px 13px;font-size:12px;color:var(--color-text-secondary);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-.5px;white-space:nowrap;transition:all .15s}
+.tab:hover{color:var(--color-text-primary)}
+.tab.active{color:var(--color-text-primary);font-weight:500;border-bottom-color:#378ADD}
+.content{padding:22px;flex:1}
+
+/* Resource card — the hero of each concept */
+.res-card{background:var(--color-background-primary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:20px 22px;margin-bottom:18px;transition:border-color .15s}
+.res-card:hover{border-color:var(--color-border-secondary)}
+.res-source{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--color-text-tertiary);margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.res-source-dot{width:6px;height:6px;border-radius:50%;background:#378ADD;flex-shrink:0}
+.res-title{font-size:15px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px;line-height:1.45}
+.res-why{font-size:13px;color:var(--color-text-secondary);line-height:1.6;margin-bottom:14px}
+.open-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--color-background-secondary);border:.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);font-size:13px;font-weight:500;color:var(--color-text-primary);cursor:pointer;text-decoration:none;transition:background .15s}
+.open-btn:hover{background:var(--color-background-tertiary)}
+.open-btn i{font-size:14px;color:var(--color-text-secondary)}
+
+/* Secondary links */
+.also-label{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--color-text-tertiary);margin:18px 0 8px}
+.also-links{display:flex;flex-direction:column;gap:6px}
+.also-link{display:flex;align-items:center;gap:8px;padding:9px 14px;background:var(--color-background-secondary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);font-size:13px;color:var(--color-text-primary);cursor:pointer;text-decoration:none;transition:background .15s}
+.also-link:hover{background:var(--color-background-primary)}
+.also-link i{font-size:14px;color:var(--color-text-tertiary)}
+.also-link-src{font-size:10px;color:var(--color-text-tertiary);margin-left:auto;white-space:nowrap}
+
+/* Notes */
+.notes-area{width:100%;min-height:130px;padding:12px;border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);font-size:13px;background:var(--color-background-primary);color:var(--color-text-primary);resize:vertical;font-family:inherit;line-height:1.7}
+.notes-area:focus{outline:none;border-color:#378ADD}
+
+/* Checklist */
+.cl-item{display:flex;align-items:center;gap:9px;padding:7px 11px;border-radius:var(--border-radius-md);border:.5px solid var(--color-border-tertiary);font-size:12px;cursor:pointer;transition:background .15s;margin-bottom:5px}
+.cl-item:hover{background:var(--color-background-secondary)}
+.cl-item.checked{background:#E1F5EE;border-color:#9FE1CB;color:#085041}
+.cb{width:15px;height:15px;border-radius:3px;border:.5px solid var(--color-border-secondary);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:9px}
+.cl-item.checked .cb{background:#1D9E75;border-color:#1D9E75;color:#fff}
+.pb-wrap{background:var(--color-background-secondary);border-radius:20px;height:5px;overflow:hidden}
+.pb-fill{height:100%;border-radius:20px;background:#1D9E75;transition:width .4s}
+.stat-card{flex:1;background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px}
+.stat-lbl{font-size:11px;color:var(--color-text-tertiary);margin-bottom:3px}
+.stat-val{font-size:20px;font-weight:500}
+
+/* Source colour coding */
+.src-hi{color:#185FA5}.src-bb{color:#D85A30}.src-martin{color:#534AB7}.src-aws{color:#854F0B}
+</style>
+
+<div class="app" id="app"></div>
+
+<script>
+const NOTES_KEY='sdrl_notes';
+const CHECKS_KEY='sdrl_checks';
+
+const PHASES=[
+  {label:"Phase 0",name:"Foundations",concepts:["How a Request Works","HTTP & REST","Database Basics"]},
+  {label:"Phase 1",name:"Backend Core",concepts:["Caching with Redis","Database Scaling","Connection Pooling"]},
+  {label:"Phase 2",name:"Reliability",concepts:["Retry & Circuit Breaker","Rate Limiting","Idempotency","Dead Letter Queue"]},
+  {label:"Phase 3",name:"Async Systems",concepts:["Message Queues","Event Driven Architecture","Saga Pattern"]},
+  {label:"Phase 4",name:"Distributed",concepts:["CAP Theorem","Consistent Hashing","Leader Election"]},
+  {label:"Phase 5",name:"Storage",concepts:["SQL Deep Dive","NoSQL","Search Engines"]},
+  {label:"Phase 6",name:"Cloud",concepts:["AWS Core","High Availability","CDN"]},
+  {label:"Phase 7",name:"Security",concepts:["Authentication","Authorization","API Security"]},
+  {label:"Phase 8",name:"AI Systems",concepts:["RAG Architecture","AI Gateway","AI Agent Architecture"]},
+  {label:"Phase 9",name:"System Designs",concepts:["URL Shortener","WhatsApp","Uber","YouTube","Instagram","Notification System"]}
+];
+const ALL=PHASES.flatMap(p=>p.concepts);
+const CHECKLIST=["Read the resource","Took notes","Completed quiz","Built something","Can explain it"];
+
+/* ── RESOURCE DATA ─────────────────────────────────────────────────────── */
+const RES={
+"How a Request Works":{
+  phase:"Phase 0 — Foundations",
+  primary:{src:"ByteByteGo",label:"What happens when you type a URL into your browser?",url:"https://blog.bytebytego.com/p/what-happens-when-you-type-a-url",why:"Alex Xu's classic — the best visual walkthrough of DNS → TCP → HTTP → rendering. Diagrams that are interview-ready."},
+  also:[
+    {label:"Networking Essentials (Hello Interview)",url:"https://www.hellointerview.com/learn/system-design/core-concepts/networking-essentials",src:"Hello Interview"},
+    {label:"How DNS works (Cloudflare)",url:"https://www.cloudflare.com/learning/dns/what-is-dns/",src:"Cloudflare"},
+  ]
+},
+"HTTP & REST":{
+  phase:"Phase 0 — Foundations",
+  primary:{src:"Hello Interview",label:"API Design — Core Concepts",url:"https://www.hellointerview.com/learn/system-design/core-concepts/api-design",why:"Written by FAANG interviewers. Covers REST vs GraphQL vs gRPC, idempotency, pagination, and exactly what comes up in system design interviews."},
+  also:[
+    {label:"REST API Design Best Practices (ByteByteGo)",url:"https://blog.bytebytego.com/p/ep57-api-design",src:"ByteByteGo"},
+    {label:"HTTP Status Codes explained (MDN)",url:"https://developer.mozilla.org/en-US/docs/Web/HTTP/Status",src:"MDN"},
+  ]
+},
+"Database Basics":{
+  phase:"Phase 0 — Foundations",
+  primary:{src:"Hello Interview",label:"Database Indexing — Core Concepts",url:"https://www.hellointerview.com/learn/system-design/core-concepts/db-indexing",why:"Best concise treatment of B-tree indexes, query planner, composite indexes, and when indexes hurt. Written for engineers, not academics."},
+  also:[
+    {label:"Data Modeling (Hello Interview)",url:"https://www.hellointerview.com/learn/system-design/core-concepts/data-modeling",src:"Hello Interview"},
+    {label:"Use the Index, Luke — B-tree internals",url:"https://use-the-index-luke.com/sql/anatomy/the-tree",src:"Use The Index, Luke"},
+  ]
+},
+"Caching with Redis":{
+  phase:"Phase 1 — Backend Core",
+  primary:{src:"Hello Interview",label:"Redis — Key Technologies deep dive",url:"https://www.hellointerview.com/learn/system-design/deep-dives/redis",why:"The single best interview-focused Redis guide. Covers data structures, caching patterns (cache-aside, write-through), eviction policies, and when not to use Redis."},
+  also:[
+    {label:"Caching — Core Concepts (Hello Interview)",url:"https://www.hellointerview.com/learn/system-design/core-concepts/caching",src:"Hello Interview"},
+    {label:"7 Redis use cases (ByteByteGo)",url:"https://blog.bytebytego.com/p/ep-40-git-workflow",src:"ByteByteGo"},
+    {label:"How Netflix warms petabytes of cache (ByteByteGo)",url:"https://blog.bytebytego.com/p/how-netflix-warms-petabytes-of-cache",src:"ByteByteGo"},
+  ]
+},
+"Database Scaling":{
+  phase:"Phase 1 — Backend Core",
+  primary:{src:"Hello Interview",label:"Sharding — Core Concepts",url:"https://www.hellointerview.com/learn/system-design/core-concepts/sharding",why:"Covers the full scaling ladder: read replicas → sharding → hot partition problems. FAANG-written, interview-focused, with real trade-off analysis."},
+  also:[
+    {label:"Scaling Reads pattern (Hello Interview)",url:"https://www.hellointerview.com/learn/system-design/patterns/scaling-reads",src:"Hello Interview"},
+    {label:"Scaling Writes pattern (Hello Interview)",url:"https://www.hellointerview.com/learn/system-design/patterns/scaling-writes",src:"Hello Interview"},
+    {label:"A Crash Course on Scaling the Data Layer (ByteByteGo)",url:"https://blog.bytebytego.com/p/a-crash-course-on-scaling-the-data",src:"ByteByteGo"},
+  ]
+},
+"Connection Pooling":{
+  phase:"Phase 1 — Backend Core",
+  primary:{src:"ByteByteGo",label:"Everything you need to know about connection pooling",url:"https://blog.bytebytego.com/p/everything-you-need-to-know-about",why:"ByteByteGo's visual treatment of HikariCP, pool sizing with Little's Law, and the Lambda+RDS connection exhaustion problem. Directly applicable to Spring Boot."},
+  also:[
+    {label:"HikariCP docs — pool configuration",url:"https://github.com/brettwooldridge/HikariCP#gear-configuration-knobs-baby",src:"HikariCP GitHub"},
+    {label:"RDS Proxy docs (AWS)",url:"https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-proxy.html",src:"AWS Docs"},
+  ]
+},
+"Retry & Circuit Breaker":{
+  phase:"Phase 2 — Reliability",
+  primary:{src:"ByteByteGo",label:"Circuit Breaker Pattern",url:"https://blog.bytebytego.com/p/circuit-breaker-pattern",why:"The definitive visual explainer. Covers closed/open/half-open states, exponential backoff, jitter, and Resilience4j — exactly as it comes up in Java interviews."},
+  also:[
+    {label:"Resilience4j docs — Circuit Breaker",url:"https://resilience4j.readme.io/docs/circuitbreaker",src:"Resilience4j"},
+    {label:"Multi-step processes pattern (Hello Interview)",url:"https://www.hellointerview.com/learn/system-design/patterns/multi-step-processes",src:"Hello Interview"},
+  ]
+},
+"Rate Limiting":{
+  phase:"Phase 2 — Reliability",
+  primary:{src:"Hello Interview",label:"Design a Rate Limiter — Problem Breakdown",url:"https://www.hellointerview.com/learn/system-design/problem-breakdowns/distributed-rate-limiter",why:"Full system design breakdown of a distributed rate limiter. Covers token bucket, leaky bucket, Redis implementation, and distributed coordination — the best single resource."},
+  also:[
+    {label:"Rate limiting algorithms (ByteByteGo)",url:"https://blog.bytebytego.com/p/rate-limiting-fundamentals",src:"ByteByteGo"},
+    {label:"API Gateway rate limiting (AWS)",url:"https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-request-throttling.html",src:"AWS Docs"},
+  ]
+},
+"Idempotency":{
+  phase:"Phase 2 — Reliability",
+  primary:{src:"Hello Interview",label:"Dealing with Contention — Patterns",url:"https://www.hellointerview.com/learn/system-design/patterns/dealing-with-contention",why:"Covers idempotency keys, distributed locking, optimistic vs pessimistic concurrency — the full pattern needed for payment APIs and reliable distributed systems."},
+  also:[
+    {label:"Idempotency keys (Stripe Engineering Blog)",url:"https://stripe.com/blog/idempotency",src:"Stripe Engineering"},
+    {label:"Idempotent REST APIs explained (ByteByteGo)",url:"https://blog.bytebytego.com/p/ep75-idempotency",src:"ByteByteGo"},
+  ]
+},
+"Dead Letter Queue":{
+  phase:"Phase 2 — Reliability",
+  primary:{src:"AWS Docs",label:"Amazon SQS Dead-Letter Queues",url:"https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html",why:"The authoritative source on DLQ configuration, maxReceiveCount, redrive policy, and the redrive-to-source-queue feature. You'll quote this in interviews."},
+  also:[
+    {label:"Message queue patterns (ByteByteGo)",url:"https://blog.bytebytego.com/p/ep82-top-6-use-cases-of-message-queues",src:"ByteByteGo"},
+    {label:"Managing Long Running Tasks (Hello Interview)",url:"https://www.hellointerview.com/learn/system-design/patterns/long-running-tasks",src:"Hello Interview"},
+  ]
+},
+"Message Queues":{
+  phase:"Phase 3 — Async Systems",
+  primary:{src:"Hello Interview",label:"Kafka — Key Technologies deep dive",url:"https://www.hellointerview.com/learn/system-design/deep-dives/kafka",why:"The best interview-focused Kafka guide. Covers producers, consumers, partitions, at-least-once delivery, and when to use Kafka vs SQS vs RabbitMQ."},
+  also:[
+    {label:"Kafka 101 (ByteByteGo EP126)",url:"https://blog.bytebytego.com/p/ep126-the-ultimate-kafka-101-you",src:"ByteByteGo"},
+    {label:"Top 6 use cases of message queues (ByteByteGo)",url:"https://blog.bytebytego.com/p/ep82-top-6-use-cases-of-message-queues",src:"ByteByteGo"},
+  ]
+},
+"Event Driven Architecture":{
+  phase:"Phase 3 — Async Systems",
+  primary:{src:"ByteByteGo",label:"Event Driven Architecture — what it is and when to use it",url:"https://blog.bytebytego.com/p/event-driven-architecture-what-it",why:"The clearest explanation of EDA vs request-driven, outbox pattern, event sourcing, and the open/closed principle applied to distributed services."},
+  also:[
+    {label:"Kafka deep dive (Hello Interview)",url:"https://www.hellointerview.com/learn/system-design/deep-dives/kafka",src:"Hello Interview"},
+    {label:"AWS EventBridge docs",url:"https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-what-is.html",src:"AWS Docs"},
+  ]
+},
+"Saga Pattern":{
+  phase:"Phase 3 — Async Systems",
+  primary:{src:"ByteByteGo",label:"The Saga Pattern — how to manage distributed transactions",url:"https://blog.bytebytego.com/p/the-saga-pattern",why:"ByteByteGo's visual treatment of choreography vs orchestration sagas, compensating transactions, and real-world examples. Best single article on this topic."},
+  also:[
+    {label:"Multi-step processes pattern (Hello Interview)",url:"https://www.hellointerview.com/learn/system-design/patterns/multi-step-processes",src:"Hello Interview"},
+    {label:"AWS Step Functions — saga orchestration",url:"https://docs.aws.amazon.com/step-functions/latest/dg/sample-saga-lambda.html",src:"AWS Docs"},
+  ]
+},
+"CAP Theorem":{
+  phase:"Phase 4 — Distributed Systems",
+  primary:{src:"Hello Interview",label:"CAP Theorem — Core Concepts",url:"https://www.hellointerview.com/learn/system-design/core-concepts/cap-theorem",why:"Written by FAANG interviewers who have asked this question hundreds of times. Covers C, A, P with concrete examples, PACELC extension, and the common mistake of mis-categorising databases."},
+  also:[
+    {label:"CAP, PACELC, ACID, BASE (ByteByteGo)",url:"https://blog.bytebytego.com/p/cap-pacelc-acid-base-essential-concepts",src:"ByteByteGo"},
+    {label:"Please stop calling databases CP or AP — Martin Kleppmann",url:"https://martin.kleppmann.com/2015/05/11/please-stop-calling-databases-cp-or-ap.html",src:"Martin Kleppmann"},
+  ]
+},
+"Consistent Hashing":{
+  phase:"Phase 4 — Distributed Systems",
+  primary:{src:"Hello Interview",label:"Consistent Hashing — Core Concepts",url:"https://www.hellointerview.com/learn/system-design/core-concepts/consistent-hashing",why:"Best explanation of the hash ring, virtual nodes, and why Redis Cluster uses hash slots instead. Written specifically for interview context."},
+  also:[
+    {label:"Consistent hashing (ByteByteGo)",url:"https://blog.bytebytego.com/p/consistent-hashing-ep3",src:"ByteByteGo"},
+    {label:"System Design: Consistent Hashing (GitHub Primer)",url:"https://github.com/donnemartin/system-design-primer#consistent-hashing",src:"System Design Primer"},
+  ]
+},
+"Leader Election":{
+  phase:"Phase 4 — Distributed Systems",
+  primary:{src:"Hello Interview",label:"ZooKeeper — Key Technologies (covers Raft + ZAB)",url:"https://www.hellointerview.com/learn/system-design/deep-dives/zookeeper",why:"Best interview-focused coverage of distributed coordination, leader election, Raft consensus, quorums, and split-brain prevention."},
+  also:[
+    {label:"Raft consensus algorithm (The Secret Lives of Data — animated)",url:"https://thesecretlivesofdata.com/raft/",src:"The Secret Lives of Data"},
+    {label:"Raft paper (Diego Ongaro)",url:"https://raft.github.io/raft.pdf",src:"Raft.github.io"},
+  ]
+},
+"SQL Deep Dive":{
+  phase:"Phase 5 — Storage",
+  primary:{src:"Hello Interview",label:"PostgreSQL — Key Technologies deep dive",url:"https://www.hellointerview.com/learn/system-design/deep-dives/postgres",why:"Covers B-tree indexes, query planner, EXPLAIN ANALYZE, covering indexes, partial indexes, and PostgreSQL-specific patterns. Exactly what FAANG interviews test."},
+  also:[
+    {label:"Use The Index, Luke — complete guide to SQL indexing",url:"https://use-the-index-luke.com/",src:"Use The Index, Luke"},
+    {label:"Database indexing (Hello Interview core concepts)",url:"https://www.hellointerview.com/learn/system-design/core-concepts/db-indexing",src:"Hello Interview"},
+  ]
+},
+"NoSQL":{
+  phase:"Phase 5 — Storage",
+  primary:{src:"Hello Interview",label:"DynamoDB + Cassandra — Key Technologies",url:"https://www.hellointerview.com/learn/system-design/deep-dives/dynamodb",why:"DynamoDB and Cassandra deep dives cover single-table design, partition keys, consistency models, and when to choose NoSQL over SQL."},
+  also:[
+    {label:"Cassandra deep dive (Hello Interview)",url:"https://www.hellointerview.com/learn/system-design/deep-dives/cassandra",src:"Hello Interview"},
+    {label:"NoSQL databases explained (ByteByteGo)",url:"https://blog.bytebytego.com/p/understanding-database-types",src:"ByteByteGo"},
+  ]
+},
+"Search Engines":{
+  phase:"Phase 5 — Storage",
+  primary:{src:"Hello Interview",label:"Elasticsearch — Key Technologies deep dive",url:"https://www.hellointerview.com/learn/system-design/deep-dives/elasticsearch",why:"Covers inverted index, BM25 ranking, fuzzy search, aggregations, and how to keep ES in sync with your primary DB. The best single resource for interview prep."},
+  also:[
+    {label:"Elasticsearch: the definitive guide (official)",url:"https://www.elastic.co/guide/en/elasticsearch/guide/current/index.html",src:"Elastic"},
+    {label:"AWS OpenSearch Service docs",url:"https://docs.aws.amazon.com/opensearch-service/latest/developerguide/what-is.html",src:"AWS Docs"},
+  ]
+},
+"AWS Core":{
+  phase:"Phase 6 — Cloud",
+  primary:{src:"ByteByteGo",label:"A visual guide to AWS services",url:"https://blog.bytebytego.com/p/ep128-ultimate-software-architect",why:"ByteByteGo's comprehensive AWS service map — EC2 vs ECS vs Lambda, RDS vs DynamoDB, SQS vs SNS, and when to use each. The clearest overview for interview prep."},
+  also:[
+    {label:"AWS Well-Architected Framework (official)",url:"https://aws.amazon.com/architecture/well-architected/",src:"AWS"},
+    {label:"API Gateway deep dive (Hello Interview)",url:"https://www.hellointerview.com/learn/system-design/deep-dives/api-gateway",src:"Hello Interview"},
+  ]
+},
+"High Availability":{
+  phase:"Phase 6 — Cloud",
+  primary:{src:"ByteByteGo",label:"Designing for High Availability — patterns and principles",url:"https://blog.bytebytego.com/p/design-patterns-for-high-availability",why:"Covers multi-AZ, active-active vs active-passive, RPO/RTO, chaos engineering, and failure mode analysis. Best single resource on HA design."},
+  also:[
+    {label:"AWS Multi-AZ deployments (official)",url:"https://aws.amazon.com/rds/features/multi-az/",src:"AWS"},
+    {label:"Netflix chaos engineering — Principles of Chaos",url:"https://principlesofchaos.org/",src:"Principles of Chaos"},
+  ]
+},
+"CDN":{
+  phase:"Phase 6 — Cloud",
+  primary:{src:"ByteByteGo",label:"How does a CDN work?",url:"https://blog.bytebytego.com/p/how-does-a-cdn-work",why:"The clearest visual explainer of CDN edge caching, cache-control headers, invalidation, and CloudFront architecture. Exactly what interviews test."},
+  also:[
+    {label:"Handling Large Blobs pattern (Hello Interview)",url:"https://www.hellointerview.com/learn/system-design/patterns/large-blobs",src:"Hello Interview"},
+    {label:"AWS CloudFront docs",url:"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Introduction.html",src:"AWS Docs"},
+  ]
+},
+"Authentication":{
+  phase:"Phase 7 — Security",
+  primary:{src:"ByteByteGo",label:"Session vs Token authentication — how do they work?",url:"https://blog.bytebytego.com/p/ep58-session-vs-token-authentication",why:"Visual comparison of sessions, JWTs, OAuth2 flows, and SSO. Covers the JWT revocation problem and refresh token pattern. Best single resource for auth in interviews."},
+  also:[
+    {label:"OAuth 2.0 explained (Aaron Parecki)",url:"https://www.oauth.com/",src:"oauth.com"},
+    {label:"JWT.io — debugger + introduction",url:"https://jwt.io/introduction",src:"JWT.io"},
+  ]
+},
+"Authorization":{
+  phase:"Phase 7 — Security",
+  primary:{src:"ByteByteGo",label:"RBAC vs ABAC — authentication vs authorization",url:"https://blog.bytebytego.com/p/rbac-vs-abac",why:"Best comparison of RBAC and ABAC with real-world examples, plus IDOR prevention patterns. Covers AWS IAM as a production ABAC system."},
+  also:[
+    {label:"OWASP IDOR prevention cheat sheet",url:"https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html",src:"OWASP"},
+    {label:"PostgreSQL Row Level Security",url:"https://www.postgresql.org/docs/current/ddl-rowsecurity.html",src:"PostgreSQL Docs"},
+  ]
+},
+"API Security":{
+  phase:"Phase 7 — Security",
+  primary:{src:"OWASP",label:"OWASP API Security Top 10",url:"https://owasp.org/www-project-api-security/",why:"The definitive source on API vulnerabilities. Covers injection, broken object-level auth, excessive data exposure, and rate limiting. Referenced in every security interview."},
+  also:[
+    {label:"Prompt injection attacks — Simon Willison",url:"https://simonwillison.net/2023/Apr/14/prompt-injection/",src:"Simon Willison"},
+    {label:"AWS WAF developer guide",url:"https://docs.aws.amazon.com/waf/latest/developerguide/what-is-aws-waf.html",src:"AWS Docs"},
+  ]
+},
+"RAG Architecture":{
+  phase:"Phase 8 — AI Systems",
+  primary:{src:"Hello Interview",label:"Vector Databases — Advanced Topics deep dive",url:"https://www.hellointerview.com/learn/system-design/deep-dives/vector-databases",why:"The best interview-focused RAG resource. Covers chunking, embedding models, vector similarity search, reranking, and evaluation metrics. Written by FAANG engineers."},
+  also:[
+    {label:"RAG from scratch — LangChain (full tutorial)",url:"https://github.com/langchain-ai/rag-from-scratch",src:"LangChain GitHub"},
+    {label:"Anthropic's guide to building with Claude — RAG patterns",url:"https://docs.anthropic.com/en/docs/build-with-claude/retrieval-augmented-generation",src:"Anthropic Docs"},
+  ]
+},
+"AI Gateway":{
+  phase:"Phase 8 — AI Systems",
+  primary:{src:"ByteByteGo",label:"API Gateway — Key Technologies",url:"https://www.hellointerview.com/learn/system-design/deep-dives/api-gateway",why:"Covers the gateway pattern, routing, caching, rate limiting, and fallback strategies. Directly maps to AI gateway architecture with LLM-specific additions."},
+  also:[
+    {label:"LiteLLM — open source AI gateway",url:"https://docs.litellm.ai/docs/",src:"LiteLLM Docs"},
+    {label:"Anthropic prompt caching guide",url:"https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching",src:"Anthropic Docs"},
+  ]
+},
+"AI Agent Architecture":{
+  phase:"Phase 8 — AI Systems",
+  primary:{src:"Anthropic",label:"Building effective agents — Anthropic official guide",url:"https://www.anthropic.com/research/building-effective-agents",why:"The authoritative guide on agent patterns: ReAct, tool use, human-in-the-loop, multi-agent orchestration. Written by the team that built Claude. Required reading."},
+  also:[
+    {label:"Anthropic tool use API docs",url:"https://docs.anthropic.com/en/docs/build-with-claude/tool-use",src:"Anthropic Docs"},
+    {label:"ReAct: Synergizing Reasoning and Acting (paper)",url:"https://arxiv.org/abs/2210.03629",src:"arXiv"},
+  ]
+},
+"URL Shortener":{
+  phase:"Phase 9 — System Designs",
+  primary:{src:"Hello Interview",label:"Design Bitly — Problem Breakdown",url:"https://www.hellointerview.com/learn/system-design/problem-breakdowns/bitly",why:"FAANG-written breakdown of the URL shortener problem. Covers ID generation (base62 vs counter), redirect caching, analytics, and scaling. Written by staff engineers who ask this question."},
+  also:[
+    {label:"Design a URL shortener (ByteByteGo)",url:"https://blog.bytebytego.com/p/design-a-url-shortener",src:"ByteByteGo"},
+  ]
+},
+"WhatsApp":{
+  phase:"Phase 9 — System Designs",
+  primary:{src:"Hello Interview",label:"Design WhatsApp — Problem Breakdown",url:"https://www.hellointerview.com/learn/system-design/problem-breakdowns/whatsapp",why:"The most comprehensive WhatsApp design breakdown available. Covers WebSocket management, offline delivery, read receipts, group fan-out, and E2E encryption. Written by engineers who ask this question at Meta."},
+  also:[
+    {label:"Design WhatsApp (ByteByteGo)",url:"https://blog.bytebytego.com/p/design-whatsapp",src:"ByteByteGo"},
+    {label:"Real-time Updates pattern (Hello Interview)",url:"https://www.hellointerview.com/learn/system-design/patterns/realtime-updates",src:"Hello Interview"},
+  ]
+},
+"Uber":{
+  phase:"Phase 9 — System Designs",
+  primary:{src:"ByteByteGo",label:"How Uber served 40 million reads with integrated Redis Cache",url:"https://blog.bytebytego.com/p/how-uber-served-40-million-reads",why:"Real production architecture from Uber. Covers geospatial indexing with Redis GEOADD, driver location updates at scale, and the exact patterns used in Uber's ride-matching system."},
+  also:[
+    {label:"Design Uber / Lyft (Hello Interview)",url:"https://www.hellointerview.com/learn/system-design/problem-breakdowns/gopuff",src:"Hello Interview"},
+    {label:"Redis geospatial commands docs",url:"https://redis.io/docs/latest/commands/geoadd/",src:"Redis Docs"},
+  ]
+},
+"YouTube":{
+  phase:"Phase 9 — System Designs",
+  primary:{src:"ByteByteGo",label:"Design a System Like YouTube (EP130)",url:"https://blog.bytebytego.com/p/ep130-design-a-system-like-youtube",why:"ByteByteGo's full YouTube design — upload pipeline, transcoding at scale, CDN delivery, HLS adaptive bitrate, recommendation system, and like count design."},
+  also:[
+    {label:"Handling Large Blobs (Hello Interview)",url:"https://www.hellointerview.com/learn/system-design/patterns/large-blobs",src:"Hello Interview"},
+    {label:"AWS MediaConvert — video transcoding",url:"https://docs.aws.amazon.com/mediaconvert/latest/ug/what-is.html",src:"AWS Docs"},
+  ]
+},
+"Instagram":{
+  phase:"Phase 9 — System Designs",
+  primary:{src:"Hello Interview",label:"Design FB News Feed — Problem Breakdown",url:"https://www.hellointerview.com/learn/system-design/problem-breakdowns/fb-news-feed",why:"The best breakdown of the fan-out problem, celebrity hotspot, Redis sorted set feeds, and hybrid push/pull architecture. Directly covers Instagram's feed system."},
+  also:[
+    {label:"Design Instagram (ByteByteGo)",url:"https://blog.bytebytego.com/p/design-instagram",src:"ByteByteGo"},
+    {label:"Scaling Reads pattern (Hello Interview)",url:"https://www.hellointerview.com/learn/system-design/patterns/scaling-reads",src:"Hello Interview"},
+  ]
+},
+"Notification System":{
+  phase:"Phase 9 — System Designs",
+  primary:{src:"ByteByteGo",label:"Design a Notification System",url:"https://blog.bytebytego.com/p/design-a-notification-system",why:"ByteByteGo's complete notification system design — multi-channel fan-out, preference management, retry logic, rate limiting, and delivery tracking. Classic interview question done right."},
+  also:[
+    {label:"AWS SNS fan-out pattern",url:"https://docs.aws.amazon.com/sns/latest/dg/sns-fork-pipeline-pattern.html",src:"AWS Docs"},
+    {label:"Managing Long Running Tasks (Hello Interview)",url:"https://www.hellointerview.com/learn/system-design/patterns/long-running-tasks",src:"Hello Interview"},
+  ]
+}
+};
+
+let st={
+  key:"Caching with Redis",tab:"resource",
+  checks:JSON.parse(localStorage.getItem(CHECKS_KEY)||'{}'),
+  notes:JSON.parse(localStorage.getItem(NOTES_KEY)||'{}')
+};
+function saveChecks(){try{localStorage.setItem(CHECKS_KEY,JSON.stringify(st.checks))}catch(e){}}
+function saveNotes(){try{localStorage.setItem(NOTES_KEY,JSON.stringify(st.notes))}catch(e){}}
+function getChecks(k){return st.checks[k]||{}}
+function getNote(k){return st.notes[k]||''}
+function masteryScore(k){const c=getChecks(k);return CHECKLIST.filter((_,i)=>c[i]).length}
+function totalDone(){return ALL.reduce((a,k)=>a+masteryScore(k),0)}
+
+const SRC_COLOR={
+  "Hello Interview":"#185FA5",
+  "ByteByteGo":"#D85A30",
+  "Anthropic":"#534AB7",
+  "OWASP":"#3B6D11",
+  "AWS Docs":"#854F0B",
+  "Martin Kleppmann":"#534AB7",
+  "Stripe Engineering":"#639922"
+};
+
+function srcColor(s){return SRC_COLOR[s]||"var(--color-text-tertiary)"}
+
+function renderResource(key){
+  const r=RES[key];if(!r)return'<div style="padding:20px;color:var(--color-text-secondary);font-size:13px">Resource data coming soon.</div>';
+  const p=r.primary;
+  return`<div class="res-card">
+    <div class="res-source"><div class="res-source-dot" style="background:${srcColor(p.src)}"></div><span style="color:${srcColor(p.src)}">${p.src}</span></div>
+    <div class="res-title">${p.label}</div>
+    <div class="res-why">${p.why}</div>
+    <a class="open-btn" href="${p.url}" target="_blank" rel="noopener"><i class="ti ti-external-link" aria-hidden="true"></i> Open resource</a>
+  </div>
+  <div class="also-label">Also worth reading</div>
+  <div class="also-links">${r.also.map(a=>`<a class="also-link" href="${a.url}" target="_blank" rel="noopener">
+    <i class="ti ti-arrow-right" aria-hidden="true"></i>
+    <span>${a.label}</span>
+    <span class="also-link-src" style="color:${srcColor(a.src)}">${a.src}</span>
+  </a>`).join('')}</div>`;
+}
+
+function renderChecklist(key){
+  const checks=getChecks(key);const score=masteryScore(key);
+  return`<div style="font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--color-text-tertiary);margin-bottom:10px">Mastery — ${score}/${CHECKLIST.length}</div>
+  <div class="pb-wrap" style="margin-bottom:14px"><div class="pb-fill" style="width:${(score/CHECKLIST.length)*100}%"></div></div>
+  <div>${CHECKLIST.map((item,i)=>`<div class="cl-item${checks[i]?' checked':''}" onclick="toggleCheck('${key}',${i})"><div class="cb">${checks[i]?'✓':''}</div><span>${item}</span></div>`).join('')}</div>
+  ${score===CHECKLIST.length?`<div style="margin-top:14px;padding:10px 14px;background:#E1F5EE;border:.5px solid #5DCAA5;border-radius:var(--border-radius-md);font-size:13px;color:#085041;font-weight:500">✓ Mastered</div>`:''}`;
+}
+
+function renderPage(key){
+  const r=RES[key];
+  const checks=getChecks(key);
+  const ph=r?r.phase:PHASES.find(p=>p.concepts.includes(key))?.label||'';
+  const TABS=["resource","my notes","checklist"];
+  const tabsHTML=TABS.map(t=>`<div class="tab${st.tab===t?' active':''}" onclick="setTab('${t}')">${t}</div>`).join('');
+  let body='';
+  if(st.tab==="resource") body=renderResource(key);
+  else if(st.tab==="my notes") body=`<div style="font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--color-text-tertiary);margin-bottom:8px">My notes</div><textarea class="notes-area" placeholder="Write your own notes after reading the resource…" oninput="updateNote('${key}',this.value)">${getNote(key)}</textarea>`;
+  else if(st.tab==="checklist") body=renderChecklist(key);
+  return`<div class="topbar">
+    <div style="display:flex;align-items:baseline;gap:8px"><span class="t-ph">${ph}</span><span class="t-title">${key}</span></div>
+    <div style="display:flex;align-items:center;gap:5px">
+      <div style="width:5px;height:5px;border-radius:50%;background:${masteryScore(key)===CHECKLIST.length?'#1D9E75':masteryScore(key)>0?'#378ADD':'var(--color-border-secondary)'}"></div>
+      <span style="font-size:11px;color:var(--color-text-tertiary)">${masteryScore(key)}/${CHECKLIST.length}</span>
+    </div>
+  </div>
+  <div class="tabs">${tabsHTML}</div>
+  <div class="content">${body}</div>`;
+}
+
+function renderDash(){
+  const total=ALL.length*CHECKLIST.length;const done=totalDone();const pct=Math.round((done/total)*100);
+  const mastered=ALL.filter(k=>masteryScore(k)===CHECKLIST.length).length;
+  const sources=[...new Set(Object.values(RES).map(r=>r.primary.src))];
+  return`<div class="topbar"><span class="t-title" style="font-size:16px">Dashboard</span></div>
+  <div class="content">
+  <div style="display:flex;gap:10px;margin-bottom:16px">
+  <div class="stat-card"><div class="stat-lbl">Progress</div><div class="stat-val">${done}<span style="font-size:12px;font-weight:400;color:var(--color-text-tertiary)"> / ${total}</span></div></div>
+  <div class="stat-card"><div class="stat-lbl">Mastered</div><div class="stat-val" style="color:#1D9E75">${mastered}</div></div>
+  <div class="stat-card"><div class="stat-lbl">Readiness</div><div class="stat-val">${pct}%</div></div>
+  </div>
+  <div class="pb-wrap" style="margin-bottom:20px"><div class="pb-fill" style="width:${pct}%"></div></div>
+  <div style="font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--color-text-tertiary);margin-bottom:10px">Source legend</div>
+  <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:20px">${sources.map(s=>`<div style="font-size:11px;padding:3px 10px;border-radius:20px;background:var(--color-background-secondary);border:.5px solid var(--color-border-tertiary);color:${srcColor(s)};font-weight:500">${s}</div>`).join('')}</div>
+  <div style="font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--color-text-tertiary);margin-bottom:10px">All concepts</div>
+  ${ALL.map(k=>{const s=masteryScore(k);const r=RES[k];return`<div style="display:flex;align-items:center;gap:10px;margin-bottom:7px;cursor:pointer" onclick="selectConcept('${k}')">
+  <div style="font-size:12px;min-width:148px;color:var(--color-text-primary)">${k}</div>
+  ${r?`<div style="font-size:10px;padding:1px 7px;border-radius:20px;background:var(--color-background-secondary);color:${srcColor(r.primary.src)};border:.5px solid var(--color-border-tertiary)">${r.primary.src}</div>`:''}
+  <div class="pb-wrap" style="flex:1"><div class="pb-fill" style="width:${(s/CHECKLIST.length)*100}%;background:${s===CHECKLIST.length?'#1D9E75':'#378ADD'}"></div></div>
+  <div style="font-size:11px;color:var(--color-text-tertiary);min-width:28px;text-align:right">${s}/${CHECKLIST.length}</div>
+  </div>`;}).join('')}
+  </div>`;
+}
+
+function render(){
+  const app=document.getElementById('app');
+  const sbHTML=`<div class="sidebar">
+  <div class="sb-header"><div class="sb-title">SysDesign Lab</div></div>
+  <div class="sb-section"><div class="ph-item${st.key==='__dash__'?' active':''}" onclick="selectConcept('__dash__')"><div class="dot dot-active"></div>Dashboard</div></div>
+  ${PHASES.map(ph=>`<div class="sb-section"><div class="ph-label">${ph.label} · ${ph.name}</div>${ph.concepts.map(c=>{const isA=st.key===c;const s=masteryScore(c);const dc=s===CHECKLIST.length?'dot-done':isA?'dot-active':'dot-locked';return`<div class="ph-item${isA?' active':''}" onclick="selectConcept('${c}')"><div class="dot ${dc}"></div><span style="font-size:11px">${c}</span></div>`;}).join('')}</div>`).join('')}
+  </div>`;
+  const mainHTML=st.key==='__dash__'?renderDash():renderPage(st.key);
+  app.innerHTML=sbHTML+`<div class="main">${mainHTML}</div>`;
+}
+
+function selectConcept(k){st.key=k;st.tab="resource";render()}
+function setTab(t){st.tab=t;render()}
+function toggleCheck(k,i){if(!st.checks[k])st.checks[k]={};st.checks[k][i]=!st.checks[k][i];saveChecks();render()}
+function updateNote(k,v){st.notes[k]=v;saveNotes()}
+
+render();
+</script>
